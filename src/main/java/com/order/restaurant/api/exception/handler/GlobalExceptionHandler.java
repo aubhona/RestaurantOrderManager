@@ -36,6 +36,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse> handleRequestException(Exception exception) {
+        return new ResponseEntity<>(
+                getExceptionResponse(exception, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
     @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<ApiResponse> handleAuthorizationException(Exception exception) {
         return new ResponseEntity<>(

@@ -36,14 +36,14 @@ public class MenuController {
     }
 
     @GetMapping
-    public ResponseEntity<ListDishesResponse> GetMenu() {
+    public ResponseEntity<ListDishesResponse> getMenu() {
         List<Dish> dishes = menuService.getAllDishes();
 
         return ResponseEntity.ok(new ListDishesResponse(dishes, (long) dishes.size()));
     }
 
     @PostMapping
-    public ResponseEntity<DishesApiResponse> AddDish(
+    public ResponseEntity<DishesApiResponse> addDish(
             HttpServletRequest request,
             @RequestBody
             @Validated
@@ -98,7 +98,7 @@ public class MenuController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse> ChangeDish(
+    public ResponseEntity<ApiResponse> changeDish(
             HttpServletRequest request,
             @Valid
             @RequestBody

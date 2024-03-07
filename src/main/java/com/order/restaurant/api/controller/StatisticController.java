@@ -27,7 +27,7 @@ public class StatisticController {
     }
 
     @GetMapping
-    public ResponseEntity<StatsResponse> GetStats(HttpServletRequest request) throws AccessException {
+    public ResponseEntity<StatsResponse> getStats(HttpServletRequest request) throws AccessException {
         String username = TokenHandler.getUsernameFromToken(
                 TokenHandler.getTokenFromCookies(request, cookieAuthName),
                 tokenKey
