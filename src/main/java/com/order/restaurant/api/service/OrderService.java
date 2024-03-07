@@ -27,9 +27,8 @@ import java.util.concurrent.Future;
 @Service
 public class OrderService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
-    private static final long MILLISECONDS_IN_MINUTE = 60_000;
-//    private static final long MILLISECONDS_IN_MINUTE = 1_000;
     private static final int DEFAULT_THREAD_COUNT = 5;
+    private static final long DEFAULT_MIllSECONDS_IN_MINUTE = 60_000;
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
@@ -37,6 +36,7 @@ public class OrderService {
     private final ExecutorService executorService;
     private final HashMap<Long, Future<?>> cookingMap;
     private final RevenueRepository revenueRepository;
+    private Long millisecondsInMinute;
 
     @Autowired
     public OrderService(
@@ -49,13 +49,20 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.dishRepository = dishRepository;
+
+        millisecondsInMinute = environment.getProperty("api.mill-in-minute", Long.class);
         Integer threadCount = environment.getProperty(
                 "app.thread-count",
                 Integer.class
         );
+
         if (threadCount == null) {
             threadCount = DEFAULT_THREAD_COUNT;
         }
+        if (millisecondsInMinute == null) {
+            millisecondsInMinute = DEFAULT_MIllSECONDS_IN_MINUTE;
+        }
+
         this.executorService = Executors.newFixedThreadPool(threadCount);
         this.revenueRepository = revenueRepository;
         cookingMap = new HashMap<>();
@@ -123,7 +130,10 @@ public class OrderService {
 
     @Transactional
     public void processOrder(Order order) throws CookingTimeException {
-        long cookingTime = order.getOrderDishes().stream().mapToLong(orderDishes -> orderDishes.getQuantity() * orderDishes.getDish().getCookingDuration()).sum() * MILLISECONDS_IN_MINUTE ;
+        long cookingTime = order.getOrderDishes()
+                .stream().mapToLong(
+                        orderDishes -> orderDishes.getQuantity() * orderDishes.getDish().getCookingDuration()
+                ).sum() * millisecondsInMinute;
         if (cookingTime < 0) {
             throw new CookingTimeException("Cooking time is too long");
         }
